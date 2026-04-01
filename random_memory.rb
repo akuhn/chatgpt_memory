@@ -1,13 +1,10 @@
 #!/usr/bin/env ruby
 require "json"
 
-def pick_random_memory(path)
-  memories = JSON.parse(File.read(path, encoding: "UTF-8")).fetch("memories", [])
-  [memories.sample, memories.length]
-end
-
-file_path = ARGV[0] || "memories.json"
-memory, n = pick_random_memory(file_path)
+file_path = ARGV.first || "memories.json"
+memories = JSON.parse(File.read(file_path, encoding: "UTF-8")).fetch("memories", [])
+memory = memories.sample
+n = memories.length
 
 if memory
   puts memory["content"]

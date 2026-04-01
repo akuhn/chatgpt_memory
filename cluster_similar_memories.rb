@@ -29,7 +29,9 @@ def words(text)
 end
 
 def vector(tokens)
-  tokens.each_with_object(Hash.new(0)) { |token, counts| counts[token] += 1 }
+  counts = Hash.new(0)
+  tokens.each { |token| counts[token] += 1 }
+  counts
 end
 
 def cosine_similarity(a, b)
@@ -122,7 +124,7 @@ clusters.sort_by { |cluster| -cluster.length }.each_with_index do |cluster, clus
 
   cluster.each do |idx|
     memory = memories[idx]
-    snippet = memory['content'].to_s.gsub(/\s+/, ' ').strip
+    snippet = memory['content'].gsub(/\s+/, ' ')
     snippet = snippet[0, preview_length] + '...' if snippet.length > preview_length
     puts "- #{memory['id']} | #{snippet}"
   end
