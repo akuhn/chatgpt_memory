@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require "json"
+require %(json)
 
 file_path = ARGV.first || "memories.json"
 memories = JSON.parse(File.read(file_path, encoding: "UTF-8")).fetch("memories", [])

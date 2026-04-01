@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-require 'json'
-require 'set'
-require 'options_by_example'
+require %(json)
+require %(set)
+require %(options_by_example)
 
 def stopwords
   @stopwords ||= %w[
