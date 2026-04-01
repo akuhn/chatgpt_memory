@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'json'
 require 'set'
+require 'options_by_example'
 
 def stopwords
   @stopwords ||= %w[
@@ -35,7 +36,7 @@ def stem(word)
 end
 
 def words(text)
-  text.downcase.scan(/[a-z]+/).map { |word| stem(word) }.reject { |word| stopwords.include?(word) }
+  text.downcase.scan(/[-a-z]+/).map { |word| stem(word) }.reject { |word| stopwords.include?(word) }
 end
 
 def vector(tokens)
@@ -239,13 +240,14 @@ def best_pairs(cluster, vectors)
   pairs.sort_by { |_pair, score| -score }.first(3)
 end
 
-path = 'memories.json'
-threshold = 0.74
+options = OptionsByExample.read(DATA).parse(ARGV)
+path = options.argument_path || 'memories.json'
+threshold = options.get(:threshold)
 preview_length = 120
-svd_dimensions = 12
-svd_iterations = 80
-gate_threshold = 0.2
-top_k = 3
+svd_dimensions = options.get(:dim)
+svd_iterations = options.get(:iter)
+gate_threshold = options.get(:gate)
+top_k = options.get(:top_k)
 
 json_text = File.binread(path).force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace)
 payload = JSON.parse(json_text)
@@ -264,7 +266,8 @@ end
 puts "Found #{clusters.length} cluster(s) at threshold #{threshold} using SVD(#{svd_dimensions}) with TF-IDF gate #{gate_threshold} and top_k #{top_k}."
 puts
 
-clusters.sort_by { |cluster| -cluster.length }.each_with_index do |cluster, cluster_idx|
+sorted_clusters = clusters.sort_by { |cluster| -cluster.length }
+sorted_clusters.each_with_index do |cluster, cluster_idx|
   puts "Cluster #{cluster_idx + 1} (#{cluster.length} memories)"
   puts '-' * 72
 
@@ -283,3 +286,21 @@ clusters.sort_by { |cluster| -cluster.length }.each_with_index do |cluster, clus
 
   puts
 end
+
+puts "Found #{clusters.length} cluster(s) at threshold #{threshold} using SVD(#{svd_dimensions}) with TF-IDF gate #{gate_threshold} and top_k #{top_k}."
+puts "Cluster seize = #{sorted_clusters.map(&:length).join(', ')}"
+
+__END__
+Groups similar memories into clusters using TF-IDF plus SVD embeddings.
+
+Usage: $0 [options] [path]
+
+Options:
+  -t, --threshold FLOAT       Cosine threshold for cluster links (default 0.74)
+  -d, --dim NUM               Number of SVD dimensions (default 12)
+  -i, --iter NUM              Iterations used by SVD power method (default 80)
+  -g, --gate FLOAT            TF-IDF gate threshold for candidate pairs (default 0.2)
+  -k, --top-k NUM             Mutual top-k neighbor cutoff (default 3)
+
+Arguments:
+  [path]                      JSON file path (default memories.json)

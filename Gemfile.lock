@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    options_by_example (4.1.0)
+
+PLATFORMS
+  arm64-darwin-23
+  ruby
+
+DEPENDENCIES
+  options_by_example (= 4.1.0)
+
+CHECKSUMS
+  options_by_example (4.1.0) sha256=1e09deecf24f96ade048e7478a0945dc35a9e0e3ac8f4054215b649b06565179
+
+BUNDLED WITH
+  4.0.6
